@@ -4,9 +4,8 @@
 This project analyzes fictional e-commerce sales data using MySQL to identify sales trends, top-performing products, customer spending patterns, order statuses, and data quality issues.
 
 ## Tools and Technologies
-- MySQL 9.3.0
 - SQL
-- MySQL Command Line Client
+- MySQL 9.3.0 Command Line Client
 
 ## Database Structure
 The database contains four related tables:

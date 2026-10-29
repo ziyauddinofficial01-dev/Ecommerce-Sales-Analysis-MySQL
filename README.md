@@ -33,6 +33,37 @@ The database contains four related tables:
 - The dataset contained 12 delivered orders, 2 pending orders, and 1 cancelled order.
 - The performed data quality checks did not identify missing customer names or cities, duplicate customer names, invalid quantities or unit prices, or missing order/product references.
 
+## Key Results
+
+| Metric | Result |
+|---|---:|
+| Total Delivered Sales | ₹314,950 |
+| Delivered Orders | 12 |
+| Average Order Value (AOV) | ₹26,245.83 |
+| Highest-Sales Category | Electronics — ₹252,000 |
+| Top Product by Revenue | Laptop — ₹165,000 |
+| Highest-Spending Customer | Aarav Sharma — ₹123,500 |
+| Most-Sold Product by Quantity | Notebook Pack — 19 units |
+
+### Monthly Delivered Sales
+
+| Month | Sales |
+|---|---:|
+| January 2025 | ₹84,800 |
+| February 2025 | ₹22,250 |
+| March 2025 | ₹68,100 |
+| April 2025 | ₹65,000 |
+| May 2025 | ₹74,800 |
+
+### Data Quality Check Results
+
+The performed checks returned no issues for the following:
+
+- Missing customer names or cities
+- Duplicate customer names
+- Invalid quantities or unit prices
+- Missing customer, order, or product references
+
 ## SQL Concepts Used
 - SELECT, WHERE, ORDER BY, GROUP BY, HAVING
 - Aggregate functions: SUM(), COUNT(), AVG()

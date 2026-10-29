@@ -77,6 +77,27 @@ The performed checks returned no issues for the following:
 - `sql/03_data_quality_checks.sql` – Data quality validation queries
 - `01_Complete_SQL_Queries.sql` – Complete collection of SQL queries
 
+
+## Screenshots
+
+### 1. Delivered Sales and Average Order Value
+![Delivered Sales and AOV](screenshots/Delivered_Sales_AOV.png)
+
+### 2. Category-wise Sales
+![Category-wise Sales](screenshots/Category_Wise_Sales.png)
+
+### 3. Top-selling Products
+![Top-selling Products](screenshots/Top_Selling_Products.png)
+
+### 4. Monthly Delivered Sales
+![Monthly Delivered Sales](screenshots/Monthly_Delivered_Sales.png)
+
+### 5. Data Quality Checks
+![Data Quality Checks](screenshots/Data_Quality_Check.png)
+
+### 6. Duplicate Customer Names Check
+![Duplicate Customer Names](screenshots/Duplicate_Customer_Names.png)
+
 ## Note
 This project uses fictional sample data for learning and demonstration. The findings apply only to this dataset and do not represent a real e-commerce business.
 

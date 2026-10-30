@@ -6,20 +6,100 @@
 -- MySQL Version: 9.3.0
 --
 -- Note:
--- This file contains combined SQL queries for sales analysis
--- and data quality checks.
+-- This file contains combined SQL queries for data quality
+-- checks and sales analysis.
 -- The dataset contains fictional sample data.
+--
+-- Workflow:
+-- 1. Database Setup
+-- 2. Data Quality Checks
+-- 3. Sales Analysis
 -- ============================================================
 
 USE ecommerce_sales;
 
 
 -- ============================================================
--- SECTION 1: SALES ANALYSIS
+-- SECTION 1: DATA QUALITY CHECKS
 -- ============================================================
 
 
--- 1. Order-wise Total
+-- 1. Check Missing Customer Names and Cities
+
+SELECT
+    COUNT(*) AS total_customers,
+    SUM(CASE
+        WHEN customer_name IS NULL
+          OR TRIM(customer_name) = ''
+        THEN 1 ELSE 0
+    END) AS missing_customer_names,
+    SUM(CASE
+        WHEN city IS NULL
+          OR TRIM(city) = ''
+        THEN 1 ELSE 0
+    END) AS missing_cities
+FROM customers;
+
+
+-- 2. Check Duplicate Customer Names
+
+SELECT
+    customer_name,
+    COUNT(*) AS name_count
+FROM customers
+WHERE customer_name IS NOT NULL
+  AND TRIM(customer_name) <> ''
+GROUP BY customer_name
+HAVING COUNT(*) > 1;
+
+
+-- 3. Check Invalid Quantities and Unit Prices
+
+SELECT
+    COUNT(*) AS total_order_details,
+    SUM(CASE
+        WHEN quantity IS NULL OR quantity <= 0
+        THEN 1 ELSE 0
+    END) AS invalid_quantities,
+    SUM(CASE
+        WHEN unit_price IS NULL OR unit_price <= 0
+        THEN 1 ELSE 0
+    END) AS invalid_unit_prices
+FROM order_details;
+
+
+-- 4. Check Orders with Missing Customer References
+
+SELECT
+    o.order_id,
+    o.customer_id
+FROM orders AS o
+LEFT JOIN customers AS c
+    ON o.customer_id = c.customer_id
+WHERE c.customer_id IS NULL;
+
+
+-- 5. Check Order Details with Missing Order or Product References
+
+SELECT
+    od.order_detail_id,
+    od.order_id,
+    od.product_id
+FROM order_details AS od
+LEFT JOIN orders AS o
+    ON od.order_id = o.order_id
+LEFT JOIN products AS p
+    ON od.product_id = p.product_id
+WHERE o.order_id IS NULL
+   OR p.product_id IS NULL;
+
+
+-- ============================================================
+-- SECTION 2: SALES ANALYSIS
+-- ============================================================
+
+
+-- 6. Order-wise Total
 
 SELECT
     order_id,
@@ -29,7 +109,7 @@ GROUP BY order_id
 ORDER BY order_id;
 
 
--- 2. Detailed Order Report
+-- 7. Detailed Order Report
 
 SELECT
     o.order_id,
@@ -50,7 +130,7 @@ GROUP BY
 ORDER BY o.order_id;
 
 
--- 3. Total Delivered Sales
+-- 8. Total Delivered Sales
 
 SELECT
     SUM(od.quantity * od.unit_price) AS delivered_sales
@@ -60,7 +140,7 @@ JOIN order_details AS od
 WHERE o.status = 'Delivered';
 
 
--- 4. Monthly Delivered Sales
+-- 9. Monthly Delivered Sales
 
 SELECT
     DATE_FORMAT(o.order_date, '%Y-%m') AS sales_month,
@@ -73,7 +153,7 @@ GROUP BY DATE_FORMAT(o.order_date, '%Y-%m')
 ORDER BY sales_month;
 
 
--- 5. Category-wise Delivered Sales
+-- 10. Category-wise Delivered Sales
 
 SELECT
     p.category,
@@ -88,7 +168,7 @@ GROUP BY p.category
 ORDER BY category_sales DESC;
 
 
--- 6. Top 5 Products by Quantity Sold
+-- 11. Top 5 Products by Quantity Sold
 
 SELECT
     p.product_name,
@@ -108,7 +188,7 @@ ORDER BY total_quantity_sold DESC
 LIMIT 5;
 
 
--- 7. Top 5 Products by Revenue
+-- 12. Top 5 Products by Revenue
 
 SELECT
     p.product_name,
@@ -129,7 +209,7 @@ ORDER BY total_revenue DESC
 LIMIT 5;
 
 
--- 8. Customer Spending Analysis
+-- 13. Customer Spending Analysis
 -- Includes only delivered orders.
 
 SELECT
@@ -148,7 +228,7 @@ GROUP BY
 ORDER BY total_spending DESC;
 
 
--- 9. Customers with Delivered Spending Above 20,000
+-- 14. Customers with Delivered Spending Above 20,000
 
 SELECT
     c.customer_name,
@@ -166,7 +246,7 @@ HAVING SUM(od.quantity * od.unit_price) > 20000
 ORDER BY total_spending DESC;
 
 
--- 10. Average Order Value (AOV)
+-- 15. Average Order Value (AOV)
 -- Calculated using delivered orders only.
 
 SELECT
@@ -185,7 +265,7 @@ FROM (
 ) AS order_summary;
 
 
--- 11. Repeat Customers
+-- 16. Repeat Customers
 -- Customers with more than one delivered order.
 
 SELECT
@@ -205,7 +285,7 @@ HAVING COUNT(DISTINCT o.order_id) > 1
 ORDER BY delivered_orders DESC, total_spending DESC;
 
 
--- 12. Customers with Delivered Spending Above 50,000
+-- 17. Customers with Delivered Spending Above 50,000
 
 SELECT
     c.customer_name,
@@ -223,7 +303,7 @@ HAVING SUM(od.quantity * od.unit_price) > 50000
 ORDER BY total_spending DESC;
 
 
--- 13. Customer Spending Categories
+-- 18. Customer Spending Categories
 -- Thresholds are defined for this sample project.
 
 SELECT
@@ -248,7 +328,7 @@ GROUP BY
 ORDER BY total_spending DESC;
 
 
--- 14. Order Status Summary
+-- 19. Order Status Summary
 
 SELECT
     status,
@@ -256,69 +336,6 @@ SELECT
 FROM orders
 GROUP BY status
 ORDER BY total_orders DESC;
-
-
--- ============================================================
--- SECTION 2: DATA QUALITY CHECKS
--- ============================================================
-
-
--- 15. Check Missing Customer Names and Cities
-
-SELECT
-    COUNT(*) AS total_customers,
-    SUM(CASE WHEN customer_name IS NULL THEN 1 ELSE 0 END)
-        AS missing_customer_names,
-    SUM(CASE WHEN city IS NULL THEN 1 ELSE 0 END)
-        AS missing_cities
-FROM customers;
-
-
--- 16. Check Duplicate Customer Names
-
-SELECT
-    customer_name,
-    COUNT(*) AS name_count
-FROM customers
-GROUP BY customer_name
-HAVING COUNT(*) > 1;
-
-
--- 17. Check Invalid Quantities and Unit Prices
-
-SELECT
-    COUNT(*) AS total_order_details,
-    SUM(CASE WHEN quantity <= 0 THEN 1 ELSE 0 END)
-        AS invalid_quantities,
-    SUM(CASE WHEN unit_price <= 0 THEN 1 ELSE 0 END)
-        AS invalid_unit_prices
-FROM order_details;
-
-
--- 18. Check Orders with Missing Customer References
-
-SELECT
-    o.order_id,
-    o.customer_id
-FROM orders AS o
-LEFT JOIN customers AS c
-    ON o.customer_id = c.customer_id
-WHERE c.customer_id IS NULL;
-
-
--- 19. Check Order Details with Missing Order or Product References
-
-SELECT
-    od.order_detail_id,
-    od.order_id,
-    od.product_id
-FROM order_details AS od
-LEFT JOIN orders AS o
-    ON od.order_id = o.order_id
-LEFT JOIN products AS p
-    ON od.product_id = p.product_id
-WHERE o.order_id IS NULL
-   OR p.product_id IS NULL;
 
 
 -- ============================================================
